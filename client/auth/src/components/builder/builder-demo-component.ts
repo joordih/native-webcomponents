@@ -52,10 +52,10 @@ export class BuilderDemoComponent extends HTMLElement {
       <div class="demo-container">
         <div class="demo-header">
           <h1>
-            ${palleteIcon} Form Builder Visual
+            ${palleteIcon} Zodiac Builder
             <span class="version-badge">v1.0</span>
           </h1>
-          <p>Zodiac Builder</p>
+          <p>Visual UI form builder Drag and Drop based.</p>
 
           <div class="demo-tabs">
             <button class="demo-tab active" data-tab="builder">${builderIcon} Constructor</button>

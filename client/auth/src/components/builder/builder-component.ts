@@ -125,7 +125,18 @@ export class FormBuilderVisual extends HTMLElement {
     }, 100);
   }
 
+  disconnectedCallback(): void {
+    this.removeEventListeners();
+
+    if (this.swapy) {
+      this.swapy.destroy();
+      this.swapy = null;
+    }
+  }
+
   private render(): void {
+    this.removeEventListeners();
+
     this.shadow.innerHTML = `
       <div class="form-builder-container">
         <div class="toolbar">
@@ -237,43 +248,83 @@ export class FormBuilderVisual extends HTMLElement {
     }, 100);
   }
 
+  private eventListenersSetup = false;
+  private boundHandlers = {
+    dragStart: (event: Event) => this.handleDragStart(event as DragEvent),
+    templateClick: (event: Event) => this.handleTemplateClick(event),
+    dragOver: (event: Event) => this.handleDragOver(event as DragEvent),
+    drop: (event: Event) => this.handleDrop(event as DragEvent),
+    showPreview: () => this.showPreview(),
+    exportSchema: () => this.exportSchema(),
+    clearForm: () => this.clearForm(),
+    hidePreview: () => this.hidePreview(),
+  };
+
   private setupEventListeners(): void {
+    if (this.eventListenersSetup) {
+      return;
+    }
+
     const fieldTemplates = this.shadow.querySelectorAll(".field-template");
     fieldTemplates.forEach((template) => {
-      template.addEventListener("dragstart", (event: Event) =>
-        this.handleDragStart(event as DragEvent)
-      );
-      template.addEventListener("click", (event: Event) =>
-        this.handleTemplateClick(event)
-      );
+      template.addEventListener("dragstart", this.boundHandlers.dragStart);
+      template.addEventListener("click", this.boundHandlers.templateClick);
+      (template as HTMLElement).draggable = true;
     });
 
     const slots = this.shadow.querySelectorAll(".form-slot");
     slots.forEach((slot) => {
-      slot.addEventListener("dragover", (event: Event) =>
-        this.handleDragOver(event as DragEvent)
-      );
-      slot.addEventListener("drop", (event: Event) =>
-        this.handleDrop(event as DragEvent)
-      );
+      slot.addEventListener("dragover", this.boundHandlers.dragOver);
+      slot.addEventListener("drop", this.boundHandlers.drop);
     });
 
     this.shadow
       .querySelector(".btn-preview")
-      ?.addEventListener("click", this.showPreview.bind(this));
+      ?.addEventListener("click", this.boundHandlers.showPreview);
     this.shadow
       .querySelector(".btn-export")
-      ?.addEventListener("click", this.exportSchema.bind(this));
+      ?.addEventListener("click", this.boundHandlers.exportSchema);
     this.shadow
       .querySelector(".btn-clear")
-      ?.addEventListener("click", this.clearForm.bind(this));
+      ?.addEventListener("click", this.boundHandlers.clearForm);
     this.shadow
       .querySelector(".close-modal")
-      ?.addEventListener("click", this.hidePreview.bind(this));
+      ?.addEventListener("click", this.boundHandlers.hidePreview);
 
+    this.eventListenersSetup = true;
+  }
+
+  private removeEventListeners(): void {
+    if (!this.eventListenersSetup) {
+      return;
+    }
+
+    const fieldTemplates = this.shadow.querySelectorAll(".field-template");
     fieldTemplates.forEach((template) => {
-      (template as HTMLElement).draggable = true;
+      template.removeEventListener("dragstart", this.boundHandlers.dragStart);
+      template.removeEventListener("click", this.boundHandlers.templateClick);
     });
+
+    const slots = this.shadow.querySelectorAll(".form-slot");
+    slots.forEach((slot) => {
+      slot.removeEventListener("dragover", this.boundHandlers.dragOver);
+      slot.removeEventListener("drop", this.boundHandlers.drop);
+    });
+
+    this.shadow
+      .querySelector(".btn-preview")
+      ?.removeEventListener("click", this.boundHandlers.showPreview);
+    this.shadow
+      .querySelector(".btn-export")
+      ?.removeEventListener("click", this.boundHandlers.exportSchema);
+    this.shadow
+      .querySelector(".btn-clear")
+      ?.removeEventListener("click", this.boundHandlers.clearForm);
+    this.shadow
+      .querySelector(".close-modal")
+      ?.removeEventListener("click", this.boundHandlers.hidePreview);
+
+    this.eventListenersSetup = false;
   }
 
   private handleDragStart(event: DragEvent): void {
@@ -374,9 +425,8 @@ export class FormBuilderVisual extends HTMLElement {
       this.deleteField(field.id, slotId);
     });
 
-    // Aplicar contraste a los botones del campo
-    const fieldButtons = fieldDiv.querySelectorAll('button');
-    fieldButtons.forEach(button => {
+    const fieldButtons = fieldDiv.querySelectorAll("button");
+    fieldButtons.forEach((button) => {
       ContrastUtils.applyContrastToButton(button as HTMLElement);
     });
 
@@ -454,9 +504,8 @@ export class FormBuilderVisual extends HTMLElement {
         this.cancelFieldEdit();
       });
 
-    // Aplicar contraste a los nuevos botones
-    const newButtons = propertiesPanel.querySelectorAll('button');
-    newButtons.forEach(button => {
+    const newButtons = propertiesPanel.querySelectorAll("button");
+    newButtons.forEach((button) => {
       ContrastUtils.applyContrastToButton(button as HTMLElement);
     });
   }
@@ -594,10 +643,9 @@ export class FormBuilderVisual extends HTMLElement {
     if (titleElement) titleElement.textContent = field.label || field.name;
     if (previewElement)
       previewElement.innerHTML = this.generateFieldPreview(field);
-    
-    // Aplicar contraste a los botones del campo actualizado
-    const fieldButtons = fieldElement.querySelectorAll('button');
-    fieldButtons.forEach(button => {
+
+    const fieldButtons = fieldElement.querySelectorAll("button");
+    fieldButtons.forEach((button) => {
       ContrastUtils.applyContrastToButton(button as HTMLElement);
     });
   }
@@ -624,9 +672,29 @@ export class FormBuilderVisual extends HTMLElement {
     this.updateFormSchema();
   }
 
+  private getOrderedFields(): Field[] {
+    const orderedFields: Field[] = [];
+    const slots = this.shadow.querySelectorAll('.form-slot');
+    
+    slots.forEach(slot => {
+      const fieldElement = slot.querySelector('[data-field-id]');
+      if (fieldElement) {
+        const fieldId = fieldElement.getAttribute('data-field-id');
+        if (fieldId) {
+          const field = this.formFields.get(fieldId);
+          if (field) {
+            orderedFields.push(field);
+          }
+        }
+      }
+    });
+
+    return orderedFields;
+  }
+
   private updateFormSchema(): void {
     const schema: FormSchema = {
-      fields: Array.from(this.formFields.values()),
+      fields: this.getOrderedFields(),
     };
 
     this.dispatchEvent(
@@ -644,7 +712,7 @@ export class FormBuilderVisual extends HTMLElement {
 
     if (modal && previewForm) {
       const schema: FormSchema = {
-        fields: Array.from(this.formFields.values()),
+        fields: this.getOrderedFields(),
       };
 
       previewForm.schema = schema;
@@ -661,7 +729,7 @@ export class FormBuilderVisual extends HTMLElement {
 
   private exportSchema(): void {
     const schema: FormSchema = {
-      fields: Array.from(this.formFields.values()),
+      fields: this.getOrderedFields(),
     };
 
     const jsonString = JSON.stringify(schema, null, 2);
@@ -694,13 +762,13 @@ export class FormBuilderVisual extends HTMLElement {
 
   public getSchema(): FormSchema {
     return {
-      fields: Array.from(this.formFields.values()),
+      fields: this.getOrderedFields(),
     };
   }
 
   private applyContrastToButtons(): void {
-    const buttons = this.shadow.querySelectorAll('button');
-    buttons.forEach(button => {
+    const buttons = this.shadow.querySelectorAll("button");
+    buttons.forEach((button) => {
       ContrastUtils.applyContrastToButton(button as HTMLElement);
     });
   }

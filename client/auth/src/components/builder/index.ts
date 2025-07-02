@@ -1,5 +1,6 @@
 import { FormBuilderVisual } from "./builder-component.ts";
 import "./builder-component.ts";
+
 import textIcon from "./svgs/text-icon.svg?raw";
 import emailIcon from "./svgs/email-icon.svg?raw";
 import lockIcon from "./svgs/lock-icon.svg?raw";
