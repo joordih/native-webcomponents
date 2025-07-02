@@ -6,6 +6,8 @@ export default class RouterController {
       const routes = {
         "/login": "login",
         "/register": "register",
+        "/swapy": "swapy",
+        "/builder": "builder",
       };
 
       res.status(200).send(routes);

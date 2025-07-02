@@ -3,13 +3,9 @@
     "target": "ES6",
     "useDefineForClassFields": true,
     "module": "preserve",
-    "lib": [
-      "ES6",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES6", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "moduleResolution": "classic",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -19,7 +15,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
