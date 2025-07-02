@@ -1,0 +1,117 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+
+    .hero-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      
+      h1 {
+        font-family: "hero";
+        font-size: 60px;
+      }
+  
+      p {
+        .highlight {
+          padding: .3rem;
+          background-color: rgba(255, 0, 0, 0.3);
+          border-radius: 0.5rem;
+          border: 1px solid red;
+        }
+      }
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: .5rem;
+
+      @media screen and (max-width: 480px) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      button {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: auto;
+        height: 44px;
+        padding: 0.5rem 2rem 0.5rem 2rem;
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        border-radius: 0.5rem;
+        border: none;
+
+        &:hover {
+          cursor: pointer;
+          opacity: 65%;
+        }
+
+        &:first-child {
+          background-color: rgb(114, 0, 0);
+          color: white;
+        }
+
+        background-color: rgba(27 27 29);
+      }
+    }
+  }
+
+  .section1 {
+    height: 100vw;
+  }
+}
+
+.typewriter h1 {
+  overflow: hidden;
+  border-right: 0.1em solid rgb(255, 255, 255);
+  white-space: nowrap;
+  margin: 0 auto;
+  height: 1.1em;
+  line-height: normal;
+  letter-spacing: 0.15em;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: rgb(255, 255, 255);
+  }
+}

@@ -1,0 +1,53 @@
+header {
+  display: flex;
+  width: 100%;
+  position: absolute;
+  justify-content: center;
+  z-index: 100;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+
+  transition:
+    margin 0.3s ease,
+    background-color 0.3s ease;
+  margin-top: 1rem;
+
+  width: 500px;
+
+  border-radius: 10px;
+  background-color: var(--secondary-foreground-60);
+
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+
+  > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: var(--secondary-foreground);
+    margin-right: auto;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 65%;
+    }
+
+    &:not(:first-child) {
+      margin-right: 1rem;
+    }
+  }
+}
+
+nav.uk-navbar-sticky {
+  padding: 0;
+}
+
+.uk-navbar-sticky {
+  border-radius: 0 0 10px 10px;
+  animation-duration: 0.3s;
+}

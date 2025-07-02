@@ -1,0 +1,39 @@
+{
+	"scripts": {
+		"start": "tsc && node --env-file=.env dist/index.ts",
+		"dev": "nodemon --exec node -r ts-node/register -r tsconfig-paths/register --env-file=.env.development src/index.ts"
+	},
+	"devDependencies": {
+		"@types/ejs": "^3.1.5",
+		"@types/express": "^5.0.0",
+		"@types/express-session": "^1.18.0",
+		"@types/node": "^22.9.0",
+		"@types/nodemailer": "^6.4.17",
+		"@types/sequelize": "^4.28.20",
+		"nodemon": "^3.1.7",
+		"sequelize-cli": "^6.6.2",
+		"ts-node": "^10.9.2",
+		"tsconfig-paths": "^4.2.0",
+		"typescript": "^5.6.3"
+	},
+	"dependencies": {
+		"connect-redis": "^7.1.1",
+		"cors": "^2.8.5",
+		"ejs": "^3.1.10",
+		"express": "^5.0.1",
+		"express-serve-static-core": "^0.1.1",
+		"express-session": "^1.18.1",
+		"googleapis": "^144.0.0",
+		"ioredis": "^5.4.1",
+		"mysql2": "^3.11.4",
+		"nodemailer": "^6.9.16",
+		"sequelize": "^6.37.5",
+		"sequelize-typescript": "^2.1.6"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"es5-ext"
+		]
+	},
+	"packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
+}

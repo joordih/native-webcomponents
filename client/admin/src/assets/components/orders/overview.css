@@ -1,0 +1,38 @@
+.overview {
+    font-family: "Geist Mono", monospace;
+    font-size: medium;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.statistics {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+
+    .statistic {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 2.5rem;
+      background-color: transparent;
+
+      h5 {
+        font-size: 0.8rem;
+        font-weight: 300;
+        padding: 0;
+        margin: 0;
+      }
+
+      h3 {
+        font-size: 0.6rem;
+        font-weight: 300;
+        margin: 0;
+        padding: 0;
+      }
+    }
+}

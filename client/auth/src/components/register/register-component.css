@@ -1,0 +1,318 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 3fr);
+  grid-template-rows: repeat(auto, 1fr);
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "art forms"
+    "art forms"
+    "art forms";
+
+  height: 100vh;
+
+  .art {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    background-color: var(--background-2);
+    padding: 1rem;
+
+    background-color: var(muted);
+    font-family: "Geist Mono", monospace;
+
+    grid-area: art;
+
+    .title {
+      display: flex;
+
+      svg {
+        padding: 1rem 0rem 1rem 0rem;
+      }
+
+      p {
+        padding: 0.7rem 1rem 1rem 0rem;
+      }
+    }
+
+    .footer {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      margin-top: auto;
+      margin-bottom: 1rem;
+
+      p:is(:first-child) {
+        font-size: 1.1rem;
+        font-style: italic;
+        font-weight: 500;
+        padding: 0;
+        margin: 0;
+      }
+
+      p:is(:last-child) {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        padding: 0;
+        margin: 0;
+      }
+    }
+  }
+
+  .forms {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 1rem;
+
+    background-color: var(--background);
+    backdrop-filter: blur(10px);
+
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    font-family: "Geist Mono", monospace;
+
+    grid-area: forms;
+
+    .change-auth {
+      display: flex;
+      margin-left: auto;
+      height: 20vh;
+
+      h2 {
+        margin-bottom: auto;
+        font-size: 1.2rem;
+        font-variant-caps: all-petite-caps;
+        font-weight: 500;
+        color: var(--primary);
+
+        &:hover,
+        &:focus {
+          cursor: default;
+          color: var(--muted-foreground);
+          font-style: italic;
+        }
+      }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 0rem;
+      padding-bottom: 0rem;
+    }
+
+    p {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--muted-foreground);
+      margin-top: 10px;
+      margin-bottom: 1rem;
+    }
+
+    p.success {
+      color: var(--chart-2);
+      padding: 0;
+      margin: 0;
+    }
+
+    p > svg {
+      position: relative;
+      top: 3px;
+      padding: 0;
+      margin: 0;
+    }
+
+    p > svg.active {
+      display: inline-block;
+    }
+
+    p > svg:not(active) {
+      display: none;
+    }
+
+    p.error {
+      color: var(--destructive);
+      padding: 0;
+      margin: 0;
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+
+      input {
+        border: 1px solid var(--border);
+        height: 2.5em;
+        padding-left: 0.8em;
+        width: 350px;
+        outline: none;
+        overflow: hidden;
+        background-color: var(--background);
+        color: var(--background-foreground);
+        border-radius: 0.2rem;
+        transition: all 0.5s;
+
+        &:hover,
+        &:focus {
+          border: 1px solid white;
+          box-shadow: 0px 0px 0px 4.5px var(--input);
+        }
+      }
+
+      button {
+        font-family: "Geist Mono", monospace;
+        font-weight: 800;
+        color: var(--secondary);
+        background-color: var(--foreground);
+        border-radius: 0.3rem;
+        border: 0px;
+        margin-top: 1rem;
+        width: 365px;
+        height: 2.5em;
+
+        &:hover,
+        &:focus {
+          opacity: 75%;
+        }
+      }
+
+      p {
+        width: 60%;
+
+        a {
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+.checkbox-wrapper-4 {
+  width: 375px;
+}
+.checkbox-wrapper-4 * {
+  box-sizing: border-box;
+  color: white;
+}
+
+.checkbox-wrapper-4 .cbx {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  padding: 6px 8px 0px;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.checkbox-wrapper-4 .cbx:not(:last-child) {
+  margin-right: 6px;
+}
+
+.checkbox-wrapper-4 .cbx span {
+  float: left;
+  vertical-align: middle;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-4 .cbx span:first-child {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  transform: scale(1);
+  border: 1px solid #cccfdb;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 1px rgba(63, 63, 63, 0.05);
+}
+
+.checkbox-wrapper-4 .cbx span:first-child svg {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-4 .cbx span:last-child {
+  padding-left: 8px;
+  line-height: 18px;
+}
+
+.checkbox-wrapper-4 .cbx:hover span:first-child {
+  border-color: var(--foreground);
+}
+
+.checkbox-wrapper-4 .inp-cbx {
+  position: absolute;
+  visibility: hidden;
+}
+
+.checkbox-wrapper-4 .inp-cbx:checked + .cbx span:first-child {
+  background: var(--foreground);
+  border-color: var(--foreground);
+  animation: wave-4 0.4s ease;
+}
+
+.checkbox-wrapper-4 .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper-4 .inline-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media screen and (max-width: 640px) {
+  .checkbox-wrapper-4 .cbx {
+    width: 100%;
+    display: inline-block;
+  }
+}
+
+@-moz-keyframes wave-4 {
+  50% {
+    transform: scale(0.9);
+  }
+}
+
+@-webkit-keyframes wave-4 {
+  50% {
+    transform: scale(0.9);
+  }
+}
+
+@-o-keyframes wave-4 {
+  50% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes wave-4 {
+  50% {
+    transform: scale(0.9);
+  }
+}

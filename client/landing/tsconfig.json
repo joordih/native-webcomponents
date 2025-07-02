@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true,
+    "module": "NodeNext",
+    "allowJs": true,
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES6",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "sourceMap": true
+  },
+  "include": [
+    "src"
+  ]
+}
