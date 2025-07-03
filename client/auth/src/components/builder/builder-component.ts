@@ -31,11 +31,35 @@ interface FieldTemplate {
   defaultConfig: Partial<Field>;
 }
 
+interface PanelState {
+  isFloating: boolean;
+  isVisible: boolean;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  isMinimized: boolean;
+}
+
+interface LayoutConfig {
+  toolbar: PanelState;
+  properties: PanelState;
+  gridColumns: number;
+  gridRows: number;
+}
+
 export class FormBuilderVisual extends HTMLElement {
   private shadow: ShadowRoot;
   private swapy: any;
   private formFields: Map<string, Field> = new Map();
   private fieldCounter = 0;
+  private layoutConfig!: LayoutConfig;
+  private isDragging = false;
+  private dragOffset = { x: 0, y: 0 };
+  private currentDragPanel: string | null = null;
+  private isResizing = false;
+  private currentResizePanel: string | null = null;
+  private resizeStartPos = { x: 0, y: 0 };
+  private resizeStartSize = { width: 0, height: 0 };
+  private eventListenersSetup = false;
 
   private fieldTemplates: FieldTemplate[] = [
     {
@@ -108,6 +132,28 @@ export class FormBuilderVisual extends HTMLElement {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
     this.loadStyles();
+    this.initializeLayoutConfig();
+  }
+
+  private initializeLayoutConfig(): void {
+    this.layoutConfig = {
+      toolbar: {
+        isFloating: false,
+        isVisible: true,
+        position: { x: 20, y: 20 },
+        size: { width: 280, height: 600 },
+        isMinimized: false,
+      },
+      properties: {
+        isFloating: false,
+        isVisible: true,
+        position: { x: window.innerWidth - 340, y: 20 },
+        size: { width: 320, height: 600 },
+        isMinimized: false,
+      },
+      gridColumns: 3,
+      gridRows: 4,
+    };
   }
 
   private loadStyles(): void {
@@ -122,6 +168,17 @@ export class FormBuilderVisual extends HTMLElement {
       this.initSwapy();
       this.setupEventListeners();
       this.applyContrastToButtons();
+      this.applyInitialPanelStyles();
+    }, 100);
+  }
+
+  private applyInitialPanelStyles(): void {
+    setTimeout(() => {
+      Object.keys(this.layoutConfig).forEach((panelType) => {
+        if (panelType !== "gridColumns" && panelType !== "gridRows") {
+          this.applyPanelStyles(panelType);
+        }
+      });
     }, 100);
   }
 
@@ -138,9 +195,74 @@ export class FormBuilderVisual extends HTMLElement {
     this.removeEventListeners();
 
     this.shadow.innerHTML = `
-      <div class="form-builder-container">
-        <div class="toolbar">
-          <h3>Elementos de Formulario</h3>
+      <div class="form-builder-container ${this.getContainerClasses()}">
+        <!--${this.renderLayoutControls()}-->
+        ${this.renderToolbar()}
+        ${this.renderBuilderArea()}
+        ${this.renderPropertiesPanel()}
+      </div>
+
+      <div class="preview-modal" id="preview-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Vista Previa del Formulario</h3>
+            <button class="close-modal">✕</button>
+          </div>
+          <div class="modal-body">
+            <form-builder id="preview-form"></form-builder>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private getContainerClasses(): string {
+    const classes = ["properties-hidden"];
+    if (this.layoutConfig.toolbar.isFloating) classes.push("toolbar-floating");
+    if (this.layoutConfig.properties.isFloating)
+      classes.push("properties-floating");
+    return classes.join(" ");
+  }
+
+  private renderLayoutControls(): string {
+    return `
+      <div class="layout-controls">
+        <button class="layout-btn" data-action="toggle-toolbar-float" title="Hacer flotante panel de herramientas">
+          📌
+        </button>
+        <button class="layout-btn" data-action="toggle-properties-float" title="Hacer flotante panel de propiedades">
+          🔧
+        </button>
+        <button class="layout-btn" data-action="toggle-toolbar-visibility" title="Mostrar/Ocultar herramientas">
+          👁️
+        </button>
+        <button class="layout-btn" data-action="toggle-properties-visibility" title="Mostrar/Ocultar propiedades">
+          🎛️
+        </button>
+        <button class="layout-btn" data-action="reset-layout" title="Resetear layout">
+          🔄
+        </button>
+        <div class="grid-controls">
+          <label>Columnas:</label>
+          <input type="range" min="1" max="6" value="${this.layoutConfig.gridColumns}" data-control="grid-columns">
+          <span>${this.layoutConfig.gridColumns}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  private renderToolbar(): string {
+    const config = this.layoutConfig.toolbar;
+    const style = config.isFloating
+      ? `style="position: fixed; left: ${config.position.x}px; top: ${config.position.y}px; width: ${config.size.width}px; height: ${config.size.height}px; z-index: 1000;"`
+      : "";
+    const classes = `toolbar ${config.isFloating ? "floating" : ""} ${!config.isVisible ? "hidden" : ""} ${config.isMinimized ? "minimized" : ""}`;
+
+    return `
+      <div class="${classes}" data-panel="toolbar" ${style}>
+        ${config.isFloating ? this.renderPanelHeader("toolbar", "Elementos de Formulario") : ""}
+        <div class="panel-content">
+          ${!config.isFloating ? "<h3>Elementos de Formulario</h3>" : ""}
           <div class="field-templates">
             ${this.fieldTemplates
               .map(
@@ -163,39 +285,65 @@ export class FormBuilderVisual extends HTMLElement {
             <button class="btn-clear">${trashIcon} Limpiar</button>
           </div>
         </div>
-
-        <div class="builder-area">
-          <h3>Constructor de Formulario</h3>
-          <div class="form-canvas" id="form-canvas">
-            ${this.generateEmptySlots()}
-          </div>
-        </div>
-
-        <div class="properties-panel">
-          <h3>Propiedades</h3>
-          <div class="properties-content">
-            <p>Selecciona un campo para editar sus propiedades</p>
-          </div>
-        </div>
+        ${config.isFloating ? this.renderResizeHandle() : ""}
       </div>
+    `;
+  }
 
-      <div class="preview-modal" id="preview-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Vista Previa del Formulario</h3>
-            <button class="close-modal">✕</button>
-          </div>
-          <div class="modal-body">
-            <form-builder id="preview-form"></form-builder>
-          </div>
+  private renderBuilderArea(): string {
+    return `
+      <div class="builder-area">
+        <h3>Constructor de Formulario</h3>
+        <div class="form-canvas" id="form-canvas" style="grid-template-columns: repeat(${this.layoutConfig.gridColumns}, 1fr);">
+          ${this.generateEmptySlots()}
         </div>
       </div>
     `;
   }
 
+  private renderPropertiesPanel(): string {
+    const config = this.layoutConfig.properties;
+    const style = config.isFloating
+      ? `style="position: fixed; left: ${config.position.x}px; top: ${config.position.y}px; width: ${config.size.width}px; height: ${config.size.height}px; z-index: 1000;"`
+      : "";
+    const classes = `properties-panel ${config.isFloating ? "floating" : ""} ${!config.isVisible ? "hidden" : ""} ${config.isMinimized ? "minimized" : ""}`;
+
+    return `
+      <div class="${classes}" data-panel="properties" ${style}>
+        ${config.isFloating ? this.renderPanelHeader("properties", "Propiedades") : ""}
+        <div class="panel-content">
+          ${!config.isFloating ? "<h3>Propiedades</h3>" : ""}
+          <div class="properties-content">
+            <p>Selecciona un campo para editar sus propiedades</p>
+          </div>
+        </div>
+        ${config.isFloating ? this.renderResizeHandle() : ""}
+      </div>
+    `;
+  }
+
+  private renderPanelHeader(panelType: string, title: string): string {
+    return `
+      <div class="panel-header" data-drag-handle="${panelType}">
+        <span class="panel-title">${title}</span>
+        <div class="panel-controls">
+          <button class="panel-btn" data-action="minimize-${panelType}" title="Minimizar">−</button>
+          <button class="panel-btn" data-action="dock-${panelType}" title="Acoplar">📌</button>
+          <button class="panel-btn" data-action="close-${panelType}" title="Cerrar">✕</button>
+        </div>
+      </div>
+    `;
+  }
+
+  private renderResizeHandle(): string {
+    return '<div class="resize-handle"></div>';
+  }
+
   private generateEmptySlots(): string {
     let slots = "";
-    for (let i = 1; i <= 12; i++) {
+    const totalSlots =
+      this.layoutConfig.gridColumns * this.layoutConfig.gridRows;
+    for (let i = 1; i <= totalSlots; i++) {
       slots += `
         <div class="form-slot" data-swapy-slot="slot-${i}">
           <div class="slot-placeholder" data-swapy-item="empty-${i}">Arrastra un campo aquí</div>
@@ -203,6 +351,229 @@ export class FormBuilderVisual extends HTMLElement {
       `;
     }
     return slots;
+  }
+
+  private setupLayoutEventListeners(): void {
+    this.shadow.addEventListener("click", this.handleLayoutAction.bind(this));
+    this.shadow.addEventListener("input", this.handleGridControl.bind(this));
+    this.shadow.addEventListener("mousedown", (event: Event) =>
+      this.handleMouseDown(event as MouseEvent)
+    );
+    document.addEventListener("mousemove", this.handleMouseMove.bind(this));
+    document.addEventListener("mouseup", this.handleMouseUp.bind(this));
+  }
+
+  private handleLayoutAction(event: Event): void {
+    const target = event.target as HTMLElement;
+    const action = target.getAttribute("data-action");
+
+    if (!action) return;
+
+    switch (action) {
+      case "toggle-toolbar-float":
+        this.togglePanelFloat("toolbar");
+        break;
+      case "toggle-properties-float":
+        this.togglePanelFloat("properties");
+        break;
+      case "toggle-toolbar-visibility":
+        this.togglePanelVisibility("toolbar");
+        break;
+      case "toggle-properties-visibility":
+        this.togglePanelVisibility("properties");
+        break;
+      case "reset-layout":
+        this.resetLayout();
+        break;
+      case "minimize-toolbar":
+        this.togglePanelMinimize("toolbar");
+        break;
+      case "minimize-properties":
+        this.togglePanelMinimize("properties");
+        break;
+      case "dock-toolbar":
+        this.dockPanel("toolbar");
+        break;
+      case "dock-properties":
+        this.dockPanel("properties");
+        break;
+      case "close-toolbar":
+        this.togglePanelVisibility("toolbar");
+        break;
+      case "close-properties":
+        this.togglePanelVisibility("properties");
+        break;
+    }
+  }
+
+  private handleGridControl(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const control = target.getAttribute("data-control");
+
+    if (control === "grid-columns") {
+      this.layoutConfig.gridColumns = parseInt(target.value);
+      this.updateGridLayout();
+    }
+  }
+
+  private handleMouseDown(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const dragHandle = target.closest("[data-drag-handle]") as HTMLElement;
+    const resizeHandle = target.closest(".resize-handle") as HTMLElement;
+
+    if (dragHandle) {
+      this.startDragging(event, dragHandle.getAttribute("data-drag-handle")!);
+    } else if (resizeHandle) {
+      this.startResizing(
+        event,
+        resizeHandle.closest("[data-panel]")!.getAttribute("data-panel")!
+      );
+    }
+  }
+
+  private handleMouseMove(event: MouseEvent): void {
+    if (this.isDragging && this.currentDragPanel) {
+      this.updatePanelPosition(event);
+    } else if (this.isResizing && this.currentResizePanel) {
+      this.updatePanelSize(event);
+    }
+  }
+
+  private handleMouseUp(): void {
+    this.isDragging = false;
+    this.isResizing = false;
+    this.currentDragPanel = null;
+    this.currentResizePanel = null;
+  }
+
+  private startDragging(event: MouseEvent, panelType: string): void {
+    this.isDragging = true;
+    this.currentDragPanel = panelType;
+    const panel = this.shadow.querySelector(
+      `[data-panel="${panelType}"]`
+    ) as HTMLElement;
+    const rect = panel.getBoundingClientRect();
+    this.dragOffset = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    event.preventDefault();
+  }
+
+  private startResizing(event: MouseEvent, panelType: string): void {
+    this.isResizing = true;
+    this.currentResizePanel = panelType;
+    this.resizeStartPos = { x: event.clientX, y: event.clientY };
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+    this.resizeStartSize = { ...config.size };
+    event.preventDefault();
+  }
+
+  private updatePanelPosition(event: MouseEvent): void {
+    if (!this.currentDragPanel) return;
+
+    const config = this.layoutConfig[
+      this.currentDragPanel as keyof LayoutConfig
+    ] as PanelState;
+    config.position = {
+      x: event.clientX - this.dragOffset.x,
+      y: event.clientY - this.dragOffset.y,
+    };
+
+    this.applyPanelStyles(this.currentDragPanel);
+  }
+
+  private updatePanelSize(event: MouseEvent): void {
+    if (!this.currentResizePanel) return;
+
+    const deltaX = event.clientX - this.resizeStartPos.x;
+    const deltaY = event.clientY - this.resizeStartPos.y;
+
+    const config = this.layoutConfig[
+      this.currentResizePanel as keyof LayoutConfig
+    ] as PanelState;
+    config.size = {
+      width: Math.max(200, this.resizeStartSize.width + deltaX),
+      height: Math.max(150, this.resizeStartSize.height + deltaY),
+    };
+
+    this.applyPanelStyles(this.currentResizePanel);
+  }
+
+  private togglePanelFloat(panelType: string): void {
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+    config.isFloating = !config.isFloating;
+    this.render();
+    this.setupEventListeners();
+  }
+
+  private togglePanelVisibility(panelType: string): void {
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+    config.isVisible = !config.isVisible;
+    this.render();
+    this.setupEventListeners();
+  }
+
+  private togglePanelMinimize(panelType: string): void {
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+    config.isMinimized = !config.isMinimized;
+    this.applyPanelStyles(panelType);
+  }
+
+  private dockPanel(panelType: string): void {
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+    config.isFloating = false;
+    this.render();
+    this.setupEventListeners();
+  }
+
+  private resetLayout(): void {
+    this.initializeLayoutConfig();
+    this.render();
+    this.setupEventListeners();
+  }
+
+  private updateGridLayout(): void {
+    const canvas = this.shadow.querySelector("#form-canvas") as HTMLElement;
+    if (canvas) {
+      canvas.style.gridTemplateColumns = `repeat(${this.layoutConfig.gridColumns}, 1fr)`;
+      canvas.innerHTML = this.generateEmptySlots();
+    }
+
+    const gridSpan = this.shadow.querySelector(".grid-controls span");
+    if (gridSpan) {
+      gridSpan.textContent = this.layoutConfig.gridColumns.toString();
+    }
+
+    this.reinitializeSwapy();
+  }
+
+  private applyPanelStyles(panelType: string): void {
+    const panel = this.shadow.querySelector(
+      `[data-panel="${panelType}"]`
+    ) as HTMLElement;
+    const config = this.layoutConfig[
+      panelType as keyof LayoutConfig
+    ] as PanelState;
+
+    if (panel && config.isFloating) {
+      panel.style.left = `${config.position.x}px`;
+      panel.style.top = `${config.position.y}px`;
+      panel.style.width = `${config.size.width}px`;
+      panel.style.height = config.isMinimized
+        ? "40px"
+        : `${config.size.height}px`;
+    }
   }
 
   private initSwapy(): void {
@@ -248,7 +619,6 @@ export class FormBuilderVisual extends HTMLElement {
     }, 100);
   }
 
-  private eventListenersSetup = false;
   private boundHandlers = {
     dragStart: (event: Event) => this.handleDragStart(event as DragEvent),
     templateClick: (event: Event) => this.handleTemplateClick(event),
@@ -291,6 +661,7 @@ export class FormBuilderVisual extends HTMLElement {
       .querySelector(".close-modal")
       ?.addEventListener("click", this.boundHandlers.hidePreview);
 
+    this.setupLayoutEventListeners();
     this.eventListenersSetup = true;
   }
 
@@ -463,6 +834,8 @@ export class FormBuilderVisual extends HTMLElement {
 
     const propertiesPanel = this.shadow.querySelector(".properties-content");
     if (!propertiesPanel) return;
+
+    this.showPropertiesPanel();
 
     propertiesPanel.innerHTML = `
       <div class="field-properties">
@@ -656,6 +1029,29 @@ export class FormBuilderVisual extends HTMLElement {
       propertiesPanel.innerHTML =
         "<p>Selecciona un campo para editar sus propiedades</p>";
     }
+    this.hidePropertiesPanel();
+  }
+
+  private showPropertiesPanel(): void {
+    const propertiesPanel = this.shadow.querySelector(".properties-panel");
+    const container = this.shadow.querySelector(".form-builder-container");
+    if (propertiesPanel) {
+      propertiesPanel.classList.add("visible");
+    }
+    if (container) {
+      container.classList.remove("properties-hidden");
+    }
+  }
+
+  private hidePropertiesPanel(): void {
+    const propertiesPanel = this.shadow.querySelector(".properties-panel");
+    const container = this.shadow.querySelector(".form-builder-container");
+    if (propertiesPanel) {
+      propertiesPanel.classList.remove("visible");
+    }
+    if (container) {
+      container.classList.add("properties-hidden");
+    }
   }
 
   private deleteField(fieldId: string, slotId: string): void {
@@ -674,12 +1070,12 @@ export class FormBuilderVisual extends HTMLElement {
 
   private getOrderedFields(): Field[] {
     const orderedFields: Field[] = [];
-    const slots = this.shadow.querySelectorAll('.form-slot');
-    
-    slots.forEach(slot => {
-      const fieldElement = slot.querySelector('[data-field-id]');
+    const slots = this.shadow.querySelectorAll(".form-slot");
+
+    slots.forEach((slot) => {
+      const fieldElement = slot.querySelector("[data-field-id]");
       if (fieldElement) {
-        const fieldId = fieldElement.getAttribute('data-field-id');
+        const fieldId = fieldElement.getAttribute("data-field-id");
         if (fieldId) {
           const field = this.formFields.get(fieldId);
           if (field) {

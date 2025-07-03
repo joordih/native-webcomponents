@@ -9,10 +9,230 @@
 
 .form-builder-container {
   display: grid;
-  grid-template-columns: 280px 1fr 320px;
-  height: 100%;
-  gap: 1px;
+  grid-template-columns: var(--toolbar-width, 280px) 1fr var(
+      --properties-width,
+      320px
+    );
+  grid-template-rows: 1fr;
+  height: 100vh;
   background: var(--border);
+  font-family: "Geist Mono", monospace;
+  overflow: hidden;
+  position: relative;
+  gap: 1px;
+  transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-builder-container.toolbar-hidden {
+  grid-template-columns: 0 1fr var(--properties-width, 320px);
+}
+
+.form-builder-container.properties-hidden {
+  grid-template-columns: var(--toolbar-width, 280px) 1fr 0;
+}
+
+.form-builder-container.both-hidden {
+  grid-template-columns: 0 1fr 0;
+}
+
+.floating-panel {
+  position: fixed;
+  z-index: 1000;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+.floating-panel.minimized {
+  height: 40px !important;
+  overflow: hidden;
+}
+
+.floating-panel .panel-content {
+  display: block;
+}
+
+.floating-panel.minimized .panel-content {
+  display: none;
+}
+
+.panel-header {
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: move;
+  user-select: none;
+}
+
+.panel-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--foreground);
+}
+
+.panel-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.panel-control-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  transition: all 0.2s;
+}
+
+.panel-control-btn:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nw-resize;
+  background: linear-gradient(
+    -45deg,
+    transparent 30%,
+    var(--border) 30%,
+    var(--border) 40%,
+    transparent 40%,
+    transparent 60%,
+    var(--border) 60%,
+    var(--border) 70%,
+    transparent 70%
+  );
+}
+
+.layout-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.layout-controls h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.control-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.layout-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--foreground);
+}
+
+.layout-btn:hover {
+  background: var(--accent);
+  border-color: var(--primary);
+}
+
+.layout-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.grid-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grid-controls input[type="range"] {
+  flex: 1;
+}
+
+.grid-controls span {
+  font-weight: 600;
+  color: var(--foreground);
+  min-width: 20px;
+  text-align: center;
+}
+
+.panel-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  transition: all 0.2s;
+}
+
+.panel-btn:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.form-builder-container.toolbar-floating .toolbar {
+  display: none;
+}
+
+.form-builder-container.properties-floating .properties-panel {
+  display: none;
+}
+
+.toolbar.floating,
+.properties-panel.floating {
+  display: block !important;
 }
 
 .toolbar {
@@ -22,6 +242,24 @@
   border-right: 1px solid var(--border);
   height: 100%;
   box-sizing: border-box;
+}
+
+.toolbar.floating {
+  position: fixed;
+  z-index: 1000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  min-height: 150px;
+}
+
+.toolbar.hidden {
+  display: none;
+}
+
+.toolbar.minimized .panel-content {
+  display: none;
 }
 
 .toolbar h3 {
@@ -151,13 +389,14 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow-y: auto;
-  margin: 20px;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .form-slot {
   min-height: 80px;
   background: var(--card);
-  border: 1px dashed var(--muted-foreground);
+  border: 2px dashed transparent;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -165,18 +404,22 @@
   transition: all 0.2s ease;
   position: relative;
   opacity: 0.7;
+  box-sizing: border-box;
+  outline: 1px dashed var(--muted-foreground);
+  outline-offset: -1px;
 }
 
 .form-slot:hover {
-  border: 2px dashed var(--primary);
+  outline: 2px dashed var(--primary);
+  outline-offset: -2px;
   background: var(--accent);
   opacity: 1;
 }
 
 .form-slot.drag-over {
-  border: 2px dashed var(--chart-2);
+  outline: 2px dashed var(--chart-2);
+  outline-offset: -2px;
   background: var(--accent);
-  transform: scale(1.02);
   opacity: 1;
 }
 
@@ -185,6 +428,8 @@
   font-size: 14px;
   text-align: center;
   padding: 20px;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .form-field {
@@ -194,6 +439,8 @@
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .form-field:hover {
@@ -295,6 +542,40 @@
   border-left: 1px solid var(--border);
   height: 100%;
   box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.properties-panel.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.properties-panel.floating {
+  position: fixed;
+  z-index: 1000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  min-height: 150px;
+  transform: scale(0.95) translateY(-10px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.properties-panel.floating.visible {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.properties-panel.hidden {
+  display: none;
+}
+
+.properties-panel.minimized .panel-content {
+  display: none;
 }
 
 .properties-panel h3 {
