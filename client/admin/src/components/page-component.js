@@ -38,9 +38,9 @@ class PageComponent extends HTMLElement {
     const pagePath = path.replace('/admin', '') || '/'
 
     const route = this.routes[pagePath]
-    const routeTitle = route.charAt(0).toUpperCase() + route.slice(1)
+    const routeTitle = route ? route.charAt(0).toUpperCase() + route.slice(1) : '404'
 
-    document.title = routeTitle + ' | Administrator' || '404'
+    document.title = routeTitle + ' | Administrator'
 
     await this.loadPage(route || '404')
   }

@@ -1,0 +1,153 @@
+:host {
+  display: block;
+  font-family:
+    var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  color: hsl(var(--foreground));
+  padding: 1rem;
+}
+
+.promoters-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.promoters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.promoters-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.promoters-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-toggle {
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--nextui-radius-medium);
+  padding: 0.5rem 1rem;
+  color: hsl(var(--secondary-foreground));
+  cursor: pointer;
+  transition: var(--nextui-hover-opacity) 0.2s ease;
+  font-size: var(--nextui-font-size-small);
+  font-weight: 500;
+}
+
+.filter-toggle:hover {
+  opacity: var(--nextui-hover-opacity);
+  background: hsl(var(--secondary) / 0.8);
+}
+
+.add-promoter {
+  background: hsl(var(--primary));
+  border: none;
+  border-radius: var(--nextui-radius-medium);
+  padding: 0.5rem 1rem;
+  color: hsl(var(--primary-foreground));
+  cursor: pointer;
+  transition: var(--nextui-hover-opacity) 0.2s ease;
+  font-size: var(--nextui-font-size-small);
+  font-weight: 500;
+}
+
+.add-promoter:hover {
+  opacity: var(--nextui-hover-opacity);
+}
+
+.promoters-content {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--nextui-radius-large);
+  overflow: hidden;
+  box-shadow: var(--nextui-box-shadow-small);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-button,
+.delete-button {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--nextui-radius-small);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: hsl(var(--secondary));
+  color: hsl(var(--muted-foreground));
+}
+
+.edit-button:hover {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
+}
+
+.delete-button:hover {
+  background: hsl(var(--destructive) / 0.2);
+  color: hsl(var(--destructive));
+}
+
+.promoter-card {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: var(--nextui-radius-small);
+}
+
+.promoter-card:hover {
+  background: hsl(var(--accent));
+}
+
+@media (max-width: 768px) {
+  .promoters-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .promoters-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .promoters-title {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  .filter-toggle,
+  .add-promoter {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    padding: 0.5rem;
+  }
+
+  .promoters-title {
+    font-size: 1.25rem;
+  }
+
+  .promoters-actions {
+    gap: 0.5rem;
+  }
+}

@@ -1,4 +1,4 @@
-import style from '@assets/components/users/filters.css?inline'
+import style from '@assets/components/promoters/filters.css?inline'
 import { store } from '@redux/store.js'
 import {
   setSearchTerm,
@@ -6,7 +6,7 @@ import {
   setDraftFilters,
   applyDraftFilters,
   clearFilters
-} from '@redux/slices/users/users-slice.js'
+} from '@redux/slices/promoters/promoters-slice.js'
 
 class FiltersComponent extends HTMLElement {
   constructor () {
@@ -26,26 +26,31 @@ class FiltersComponent extends HTMLElement {
 
   connectedCallback () {
     this.style.display = 'none'
-    this.classList.add('hidden')
+    this.classList.remove('hidden')
     this.unsubscribe = store.subscribe(() => {
-      const { searchTerm, draftFilters } = store.getState().users
-      const newActiveFilters = new Map(Object.entries(searchTerm))
-      const newDraftFilters = new Map(Object.entries(draftFilters))
+      const { searchTerm, draftFilters } = store.getState().promoters
+      const newActiveFilters = new Map(Object.entries(searchTerm || {}))
+      const newDraftFilters = new Map(Object.entries(draftFilters || {}))
 
-      if (
-        JSON.stringify(Array.from(newActiveFilters.entries())) !==
-          JSON.stringify(Array.from(this.activeFilters.entries())) ||
-        JSON.stringify(Array.from(newDraftFilters.entries())) !==
+      const activeFiltersChanged = JSON.stringify(Array.from(newActiveFilters.entries())) !==
+          JSON.stringify(Array.from(this.activeFilters.entries()))
+      const draftFiltersChanged = JSON.stringify(Array.from(newDraftFilters.entries())) !==
           JSON.stringify(Array.from(this.draftFilters.entries()))
-      ) {
-        this.activeFilters = newActiveFilters
-        this.draftFilters = newDraftFilters
+
+      this.activeFilters = newActiveFilters
+      this.draftFilters = newDraftFilters
+
+      if (activeFiltersChanged) {
         this.render()
         this.setupEventListeners()
+      } else if (draftFiltersChanged) {
+        this.updateInputValues()
       }
     })
 
     window.addEventListener('resize', this.handleResize)
+    this.render()
+    this.setupEventListeners()
   }
 
   disconnectedCallback () {
@@ -78,8 +83,46 @@ class FiltersComponent extends HTMLElement {
     }
   }
 
+  updateInputValues () {
+    const nameInput = this.shadow.querySelector('#search-name')
+    const emailInput = this.shadow.querySelector('#search-email')
+    const statusSelect = this.shadow.querySelector('#filter-status')
+    const roleSelect = this.shadow.querySelector('#filter-role')
+    const dateFromInput = this.shadow.querySelector('#date-from')
+    const dateToInput = this.shadow.querySelector('#date-to')
+
+    if (nameInput && nameInput !== document.activeElement) {
+      nameInput.value = this.draftFilters.get('name') || ''
+    }
+    if (emailInput && emailInput !== document.activeElement) {
+      emailInput.value = this.draftFilters.get('email') || ''
+    }
+    if (statusSelect && statusSelect !== document.activeElement) {
+      statusSelect.value = this.draftFilters.get('status') || ''
+    }
+    if (roleSelect && roleSelect !== document.activeElement) {
+      roleSelect.value = this.draftFilters.get('role') || ''
+    }
+    if (dateFromInput && dateFromInput !== document.activeElement) {
+      dateFromInput.value = this.draftFilters.get('dateFrom') || ''
+    }
+    if (dateToInput && dateToInput !== document.activeElement) {
+      dateToInput.value = this.draftFilters.get('dateTo') || ''
+    }
+  }
+
   render () {
     this.shadow.innerHTML = /* html */ `
+      <!-- <div class="search-container">
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Buscar promotores..."
+          value="${this.getSearchValue()}"
+        >
+      </div> -->
+      
       <div class="filters-overlay">
         <div class="filters-menu" part="menu">
           <div class="filters-header">
@@ -99,7 +142,7 @@ class FiltersComponent extends HTMLElement {
                 type="text" 
                 id="search-name" 
                 class="filter-input" 
-                placeholder="Ingresa el nombre del usuario..."
+                placeholder="Ingresa el nombre del promotor..."
                 value="${this.draftFilters.get('name') || ''}"
               >
           </div>
@@ -110,7 +153,7 @@ class FiltersComponent extends HTMLElement {
               type="email" 
               id="search-email" 
               class="filter-input" 
-              placeholder="Ingresa el email del usuario..."
+              placeholder="Ingresa el email del promotor..."
               value="${this.draftFilters.get('email') || ''}"
             >
           </div>
@@ -135,15 +178,15 @@ class FiltersComponent extends HTMLElement {
             <label class="filter-label" for="filter-role">Rol</label>
             <select id="filter-role" class="filter-select">
               <option value="">Todos los roles</option>
-              <option value="admin" ${
-                this.draftFilters.get('role') === 'admin' ? 'selected' : ''
-              }>Administrador</option>
-              <option value="user" ${
-                this.draftFilters.get('role') === 'user' ? 'selected' : ''
-              }>Usuario</option>
-              <option value="moderator" ${
-                this.draftFilters.get('role') === 'moderator' ? 'selected' : ''
-              }>Moderador</option>
+              <option value="promoter" ${
+                this.draftFilters.get('role') === 'promoter' ? 'selected' : ''
+              }>Promotor</option>
+              <option value="manager" ${
+                this.draftFilters.get('role') === 'manager' ? 'selected' : ''
+              }>Manager</option>
+              <option value="supervisor" ${
+                this.draftFilters.get('role') === 'supervisor' ? 'selected' : ''
+              }>Supervisor</option>
             </select>
           </div>
           
@@ -182,6 +225,14 @@ class FiltersComponent extends HTMLElement {
     </div>
   </div>
     `
+  }
+
+  getSearchValue () {
+    const searchTerm = store.getState().promoters.searchTerm
+    if (typeof searchTerm === 'string') {
+      return searchTerm
+    }
+    return ''
   }
 
   getActiveFiltersHTML () {
@@ -232,9 +283,9 @@ class FiltersComponent extends HTMLElement {
 
   getRoleLabel (value) {
     const roleLabels = {
-      admin: 'Administrador',
-      user: 'Usuario',
-      moderator: 'Moderador'
+      promoter: 'Promotor',
+      manager: 'Manager',
+      supervisor: 'Supervisor'
     }
     return roleLabels[value] || value
   }
@@ -252,10 +303,32 @@ class FiltersComponent extends HTMLElement {
   applyFilters () {
     store.dispatch(applyDraftFilters())
     this.hide()
+
+    // Dispatch custom event for datatable
+    const searchTerm = this.shadow.querySelector('#search-input')?.value || ''
+    const filters = Object.fromEntries(this.draftFilters)
+    this.dispatchEvent(
+      new CustomEvent('filtersChanged', {
+        detail: { searchTerm, filters },
+        bubbles: true,
+        composed: true
+      })
+    )
   }
 
   clearAllFilters () {
     store.dispatch(clearFilters())
+    const searchInput = this.shadow.querySelector('#search-input')
+    if (searchInput) {
+      searchInput.value = ''
+    }
+    this.dispatchEvent(
+      new CustomEvent('filtersChanged', {
+        detail: { searchTerm: '', filters: {} },
+        bubbles: true,
+        composed: true
+      })
+    )
   }
 
   removeFilter (key) {
@@ -265,6 +338,19 @@ class FiltersComponent extends HTMLElement {
   }
 
   setupEventListeners () {
+    // Search input
+    const searchInput = this.shadow.querySelector('#search-input')
+    searchInput?.addEventListener('input', e => {
+      const searchTerm = e.target.value
+      this.dispatchEvent(
+        new CustomEvent('filtersChanged', {
+          detail: { searchTerm },
+          bubbles: true,
+          composed: true
+        })
+      )
+    })
+
     const closeButton = this.shadow.querySelector('.close-filters')
     closeButton?.addEventListener('click', () => {
       this.hide()
@@ -341,33 +427,6 @@ class FiltersComponent extends HTMLElement {
       })
     })
   }
-  // updateFilter (key, value) {
-  //   if (value && value.trim() !== '') {
-  //     this.activeFilters.set(key, value.trim())
-  //   } else {
-  //     this.activeFilters.delete(key)
-  //   }
-  // }
-
-  // removeFilter (key) {
-  //   this.activeFilters.delete(key)
-  //   this.applyFilters()
-  //   this.render()
-  //   this.setupEventListeners()
-  // }
-
-  // clearAllFilters () {
-  //   this.activeFilters.clear()
-  //   this.applyFilters()
-  //   this.render()
-  //   this.setupEventListeners()
-  // }
-
-  // applyFilters () {
-  //   const filterData = Object.fromEntries(this.activeFilters)
-  //   store.dispatch(setSearchTerm(filterData))
-  //   this.dispatchFilterEvent()
-  // }
 
   dispatchFilterEvent () {
     const filterData = Object.fromEntries(this.activeFilters)
@@ -398,9 +457,7 @@ class FiltersComponent extends HTMLElement {
 
   show () {
     store.dispatch(initDraftFilters())
-    // Primero establecemos el display para que sea visible
     this.style.display = 'block'
-    // Usamos setTimeout para asegurar que el cambio de display se aplique antes de agregar la clase
     setTimeout(() => {
       this.classList.add('show')
       this.classList.remove('hidden')
@@ -431,6 +488,6 @@ class FiltersComponent extends HTMLElement {
   }
 }
 
-customElements.define('table-users-component', FiltersComponent)
+customElements.define('filters-component', FiltersComponent)
 
 export default FiltersComponent

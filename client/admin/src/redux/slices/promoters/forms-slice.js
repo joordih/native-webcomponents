@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-export const usersForms = createSlice({
-  name: 'users_forms',
+export const promotersForms = createSlice({
+  name: 'promoters_forms',
   initialState: {
     currentTab: 'general',
     inputs: {}
@@ -32,6 +32,6 @@ export const {
   editElement,
   setCurrentTab,
   createElement
-} = usersForms.actions
+} = promotersForms.actions
 export const broadcastInputs = state => state.forms.inputs
-export default usersForms.reducer
+export default promotersForms.reducer

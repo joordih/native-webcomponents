@@ -398,9 +398,7 @@ class FiltersComponent extends HTMLElement {
 
   show () {
     store.dispatch(initDraftFilters())
-    // Primero establecemos el display para que sea visible
     this.style.display = 'block'
-    // Usamos setTimeout para asegurar que el cambio de display se aplique antes de agregar la clase
     setTimeout(() => {
       this.classList.add('show')
       this.classList.remove('hidden')
