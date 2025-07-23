@@ -19,14 +19,14 @@ class CategoriesComponent extends HTMLElement {
             { name: 'Electric Brakes' },
             { name: 'Emergency Brakes' },
             { name: 'Hydraulic Brakes' },
-            { name: 'Mechanical Brakes' },
+            { name: 'Mechanical Brakes' }
           ],
           image: [
             './brake.webp_50x50?url',
             './brake.webp_100x100?url',
             './brake.webp_150x150?url',
-            './brake.webp_200x200?url',
-          ],
+            './brake.webp_200x200?url'
+          ]
         },
         {
           id: 2,
@@ -36,14 +36,14 @@ class CategoriesComponent extends HTMLElement {
             { name: 'Fog Lights' },
             { name: 'Turn Signals' },
             { name: 'Tail Lights' },
-            { name: 'Switches & Relays' },
+            { name: 'Switches & Relays' }
           ],
           image: [
             './lighting.webp_50x50?url',
             './lighting.webp_100x100?url',
             './lighting.webp_150x150?url',
-            './lighting.webp_200x200?url',
-          ],
+            './lighting.webp_200x200?url'
+          ]
         },
         {
           id: 3,
@@ -53,16 +53,16 @@ class CategoriesComponent extends HTMLElement {
             { name: 'Atturo Tires' },
             { name: 'Moto Metals' },
             { name: 'Wheels Tires' },
-            { name: 'XD Wheels' },
+            { name: 'XD Wheels' }
           ],
           image: [
             './tires.webp_50x50?url',
             './tires.webp_100x100?url',
             './tires.webp_150x150?url',
-            './tires.webp_200x200?url',
-          ],
-        },
-      ],
+            './tires.webp_200x200?url'
+          ]
+        }
+      ]
     }
   }
 
@@ -75,7 +75,7 @@ class CategoriesComponent extends HTMLElement {
     const section = document.createElement('section')
     section.className = 'categories'
 
-    this.data.categories.forEach((category) => {
+    this.data.categories.forEach(category => {
       const categoryDiv = document.createElement('div')
       categoryDiv.className = 'category'
 
@@ -91,7 +91,7 @@ class CategoriesComponent extends HTMLElement {
       const subcategories = document.createElement('div')
       subcategories.className = 'sub-categories'
       const subcategoriesList = document.createElement('ul')
-      category.subcategories.forEach((subcategory) => {
+      category.subcategories.forEach(subcategory => {
         const subcategoryItem = document.createElement('li')
         subcategoryItem.textContent = subcategory.name
         subcategoriesList.appendChild(subcategoryItem)
@@ -113,9 +113,11 @@ class CategoriesComponent extends HTMLElement {
       categoryImage.className = 'category-image'
       const img = document.createElement('img')
 
-      // calcular tamaño pantalla y añadir imagen según resolucion - copilot warning
       const width = window.innerWidth
-      img.src = category.image[width > 1920 ? 3 : width > 1024 ? 2 : width > 768 ? 1 : 0]
+      img.src =
+        category.image[
+          width > 1920 ? 3 : width > 1024 ? 2 : width > 768 ? 1 : 0
+        ]
 
       img.alt = category.name
       categoryImage.appendChild(img)

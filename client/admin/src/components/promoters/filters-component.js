@@ -32,10 +32,12 @@ class FiltersComponent extends HTMLElement {
       const newActiveFilters = new Map(Object.entries(searchTerm || {}))
       const newDraftFilters = new Map(Object.entries(draftFilters || {}))
 
-      const activeFiltersChanged = JSON.stringify(Array.from(newActiveFilters.entries())) !==
-          JSON.stringify(Array.from(this.activeFilters.entries()))
-      const draftFiltersChanged = JSON.stringify(Array.from(newDraftFilters.entries())) !==
-          JSON.stringify(Array.from(this.draftFilters.entries()))
+      const activeFiltersChanged =
+        JSON.stringify(Array.from(newActiveFilters.entries())) !==
+        JSON.stringify(Array.from(this.activeFilters.entries()))
+      const draftFiltersChanged =
+        JSON.stringify(Array.from(newDraftFilters.entries())) !==
+        JSON.stringify(Array.from(this.draftFilters.entries()))
 
       this.activeFilters = newActiveFilters
       this.draftFilters = newDraftFilters
@@ -304,7 +306,6 @@ class FiltersComponent extends HTMLElement {
     store.dispatch(applyDraftFilters())
     this.hide()
 
-    // Dispatch custom event for datatable
     const searchTerm = this.shadow.querySelector('#search-input')?.value || ''
     const filters = Object.fromEntries(this.draftFilters)
     this.dispatchEvent(
@@ -338,7 +339,6 @@ class FiltersComponent extends HTMLElement {
   }
 
   setupEventListeners () {
-    // Search input
     const searchInput = this.shadow.querySelector('#search-input')
     searchInput?.addEventListener('input', e => {
       const searchTerm = e.target.value

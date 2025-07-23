@@ -82,7 +82,6 @@ class DataTable extends HTMLElement {
       params.append('search', searchTerm)
     }
 
-    // Add filter parameters
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value.trim() !== '') {
         params.append(key, value)
@@ -145,7 +144,7 @@ class DataTable extends HTMLElement {
   }
 
   async applyFilters (filters) {
-    this.currentPage = 0 // Reset to first page when applying filters
+    this.currentPage = 0
     const searchTerm = store.getState().promoters.searchTerm
     await this.performSearch(searchTerm, filters)
   }
@@ -278,7 +277,9 @@ class DataTable extends HTMLElement {
     this.shadow
       .querySelector('.filter-toggle')
       .addEventListener('click', () => {
-        const filtersComponent = document.querySelector('page-component')?.shadowRoot?.querySelector('filters-component')
+        const filtersComponent = document
+          .querySelector('page-component')
+          ?.shadowRoot?.querySelector('filters-component')
         if (filtersComponent && typeof filtersComponent.show === 'function') {
           filtersComponent.show()
         }
