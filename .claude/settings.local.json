@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(copy:*)",
+      "Bash(cp:*)",
+      "Bash(for:*)",
+      "Bash(do cp \"C:\\Users\\jordi.macho\\Documents\\bot-saas\\wc-v3\\client\\admin\\src\\assets\\icons$file\" \"C:\\Users\\jordi.macho\\Documents\\bot-saas\\wc-v3\\client\\admin-refactor\\src\\assets\\icons$file\")",
+      "Bash(done)"
+    ],
+    "deny": []
+  }
+}

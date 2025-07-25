@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "target": "ES6",
     "useDefineForClassFields": true,
-    "module": "preserve",
+    "module": "ESNext",
     "lib": ["ES6", "DOM", "DOM.Iterable"],
     "skipLibCheck": false,
     "moduleResolution": "bundler",
@@ -17,7 +17,12 @@
     "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"]
+      "@components/*": ["src/components/*"],
+      "@redux/*": ["src/redux/*"],
+      "@utils/*": ["src/utils/*"],
+      "@assets/*": ["src/assets/*"],
+      "@icons/*": ["src/assets/icons/*"],
+      "@types/*": ["src/types/*"]
     }
   },
   "include": ["src"]

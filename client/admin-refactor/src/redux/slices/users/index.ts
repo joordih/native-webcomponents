@@ -18,18 +18,17 @@ const userSlice = createEntitySlice<User>({
       const index: number = state.items.findIndex(
         (user) => user.id === Number(action.payload.id)
       );
-      state.items[index] = action.payload;
+      if (index !== -1) {
+        state.items[index] = action.payload;
+      }
     },
     clearUsers: (state) => {
       state.items = [];
     },
-    setSearchTerm: (state, action: PayloadAction<{}>) => {
-      state.searchTerm = action.payload;
-    },
     initDraftFilters: (state) => {
       state.draftFilters = state.searchTerm;
     },
-    setDraftFilters: (state, action: PayloadAction<{}>) => {
+    setDraftFilters: (state, action: PayloadAction<Record<string, any>>) => {
       state.draftFilters = action.payload;
     },
     applyDraftFilters: (state) => {
@@ -70,5 +69,7 @@ export const {
   decrementCount,
   setQueuedUpdate,
 } = userSlice.actions;
+
+export { userSlice }
 
 export default userSlice.reducer;

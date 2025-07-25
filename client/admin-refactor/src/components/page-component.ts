@@ -64,15 +64,13 @@ class PageComponent extends HTMLElement {
   }
 
   private mountPage = async (page: string): Promise<void> => {
-    const [html, css, rootCss] = await Promise.all([
-      fetch(`./src/components/${page}/${page}-component.html`).then((r) =>
-        r.text()
-      ),
-      import(`./${page}/${page}-component.css?raw`) as Promise<CssModule>,
-      import(`../assets/root.css?inline`) as Promise<CssModule>,
+    const [html, css] = await Promise.all([
+      fetch(`src/pages/${page}.html`).then((r) => r.text()),
+      import(
+        `../assets/components/${page}/${page}.css?inline`
+      ) as Promise<CssModule>,
     ]);
 
-    this.applyStyles(rootCss.default);
     this.applyStyles(css.default);
     import(`./${page}/${page}-component.ts`).catch((err) =>
       console.error(`Error loading ${page} component`, err)

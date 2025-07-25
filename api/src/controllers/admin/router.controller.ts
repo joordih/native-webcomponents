@@ -7,6 +7,9 @@ export default class RouterController {
         "/orders": "orders",
         "/users": "users",
         "/promoters": "promoters",
+        "/builder": "builder",
+        "/page-builder": "page-builder",
+        "/visualform": "visual-form-builder",
       };
 
       res.status(200).send(routes);

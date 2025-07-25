@@ -25,6 +25,15 @@
     --chart-3: hsl(197, 37%, 24%);
     --chart-4: hsl(43, 74%, 66%);
     --chart-5: hsl(27, 87%, 67%);
+    
+    /* Font families */
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    
+    /* NextUI compatibility */
+    --nextui-box-shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --nextui-box-shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --nextui-success: hsl(142, 76%, 36%);
   }
 
   .dark {
@@ -57,17 +66,19 @@
 }
 
 * {
-  font-family: "Geist Mono", monospace;
-  cursor: crosshair;
   box-sizing: border-box;
-  max-width: 100vw;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background: hsl(240 10% 3.9%);
+  font-family: var(--font-sans);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :host,

@@ -71,7 +71,7 @@ class UserRepository implements IUserRepository {
         where: filters.where,
         limit: limit,
         offset: offset,
-        attributes: ["id", "name", "email", "createdAt", "updatedAt"],
+        attributes: ["id", "name", "email", "role", "status", "createdAt", "updatedAt"],
         paranoid: true,
       });
     } catch (error) {
